@@ -58,8 +58,13 @@ void* heap_alloc(size_t size) {
     return (char*) new_chunk + sizeof(heapchunk);
 }
 
-void heap_free(void* chunk) {
+void heap_free(void* ptr) {
+    if (ptr == NULL) return;
 
+    heapchunk* target = (heapchunk*) ((char*) ptr - sizeof(heapchunk));
+
+    remove_from_list(&allocated_head, target);
+    add_to_list(&free_head, target);
 }
 
 void add_to_list(heapchunk** head, heapchunk* target) {
@@ -94,9 +99,12 @@ void print_chunks() {
     int count = 0;
 
     while (ptr != NULL) {
+        int value = *(int*) ((char*) ptr + sizeof(heapchunk));
+
         printf("\nChunk %d\n", count++);
         printf("    Pointer: %p\n", ptr);
         printf("    Size: %zu bytes\n", ptr -> size);
+        printf("    Value: %d\n", value);
 
         ptr = ptr -> next;
     }
