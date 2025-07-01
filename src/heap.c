@@ -28,7 +28,6 @@ inline size_t align_chunk(size_t size) {
 void* heap_alloc(size_t size) {
     size_t aligned_size = align_chunk(size);     
 
-    heapchunk* previous = NULL;
     heapchunk* current = free_head;
 
     while (current != NULL) {
@@ -40,7 +39,6 @@ void* heap_alloc(size_t size) {
             return (char*) current + sizeof(heapchunk);
         }
 
-        previous = current;
         current = current -> next;
     }
 
