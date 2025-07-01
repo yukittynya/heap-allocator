@@ -9,8 +9,13 @@ typedef struct heapchunk {
     size_t size;
 } heapchunk;
 
+size_t align_chunk(size_t size);
+
 void* heap_alloc(size_t size);
 void heap_free(void* chunk);
+
+void add_to_list(heapchunk** head, heapchunk* target);
+void remove_from_list(heapchunk** head, heapchunk* target);
 
 void print_chunks();
 
