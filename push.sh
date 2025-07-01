@@ -1,5 +1,5 @@
 git pull origin main 
-git add src/main.c src/heap.c src/heap.h make.sh push.sh
+git add src/main.c src/heap.c src/heap.h make.sh push.sh README.md
 
 echo "Message:"
 read message
