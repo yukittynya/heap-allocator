@@ -18,7 +18,7 @@ void add_to_list(heapchunk** head, heapchunk* target);
 void remove_from_list(heapchunk** head, heapchunk* target);
 
 heapchunk* split_chunk(heapchunk* target, size_t size);
-void coalease_list();
+void coalesce_list();
 
 heapchunk* find_next(heapchunk* target);
 heapchunk* find_previous(heapchunk* target);

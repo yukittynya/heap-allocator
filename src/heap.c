@@ -77,7 +77,7 @@ void heap_free(void* ptr) {
     remove_from_list(&allocated_head, target);
     add_to_list(&free_head, target);
 
-    coalease_list();
+    coalesce_list();
 }
 
 void add_to_list(heapchunk** head, heapchunk* target) {
@@ -118,13 +118,22 @@ heapchunk* split_chunk(heapchunk* target, size_t size) {
     return chunk;
 }
 
-void coalease_list() {
+void coalesce_list() {
     heapchunk* current = free_head;
 
     while (current != NULL) {
-        heapchunk* next_node = current -> next;
+        heapchunk* next_node = NULL;
 
-        heapchunk* prev = find_previous(current);
+        if (current -> next != NULL) {
+            next_node = current -> next;
+        } 
+
+        heapchunk* prev = NULL;
+
+        if (current != free_head) {
+            prev = find_previous(current);
+        }
+
         heapchunk* next = find_next(current);
 
         if (prev != NULL || next != NULL) {
@@ -138,6 +147,7 @@ void coalease_list() {
             result -> size = (prev ? prev -> size : 0) + current -> size + (next ? next -> size : 0); 
 
             add_to_list(&free_head, result);
+            continue;
         }
 
         current = next_node;
@@ -177,6 +187,8 @@ heapchunk* find_previous(heapchunk* target) {
 void heap_cleanup() {
     heapchunk* current = free_head;
 
+    if (current == NULL) return;
+
     while (current != NULL) {
         heapchunk* next = current -> next;
         munmap(current, current -> size);
@@ -186,6 +198,8 @@ void heap_cleanup() {
     free_head = NULL;
 
     current = allocated_head;
+
+    if (current == NULL) return;
 
     while (current != NULL) {
         heapchunk* next = current -> next;
@@ -216,15 +230,12 @@ void print_free_list() {
     heapchunk* ptr = free_head;
     int count = 0;
 
-    printf("\n\n*****Free List*****\n\n");
-
     while (ptr != NULL) {
         int value = *(int*) ((char*) ptr + sizeof(heapchunk));
 
         printf("\nChunk %d\n", count++);
         printf("    Pointer: %p\n", ptr);
         printf("    Size: %zu bytes\n", ptr -> size);
-        printf("    Value: %d\n", value);
 
         ptr = ptr -> next;
     }
