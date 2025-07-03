@@ -9,6 +9,7 @@ int main(int argc, char *argv[]) {
     printf("***** Split chunk testing *****\n\n");
     printf("Creating large chunk to be split\n");
     void* large = heap_alloc(100);
+    *(int*)large = 982374592;
     print_chunks();
     heap_free(large);
 
@@ -16,15 +17,14 @@ int main(int argc, char *argv[]) {
     print_free_list();
 
     printf("\nSplitting Chunk and Creating A and B\n");
-    void* a = heap_alloc(10);
-    void* b = heap_alloc(10);
+    void* a = heap_alloc(sizeof(int));
+    void* b = heap_alloc(sizeof(int));
 
     *(int*)a = 33;
     *(int*)b = 99;
 
-    printf("a: %d\n", *(int*) a);
-    printf("b: %d\n", *(int*) b);
-
+    printf("\na: %d, size: %zu\n", *(int*) a, sizeof(a));
+    printf("\nb: %d\n", *(int*) b);
 
     print_chunks();
 
