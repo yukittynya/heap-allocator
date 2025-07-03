@@ -31,14 +31,15 @@ void* heap_alloc(size_t size) {
     heapchunk* current = free_head;
 
     while (current != NULL) {
+        if (current -> size == aligned_size + sizeof(heapchunk)) {
+            remove_from_list(&free_head, current);
+            add_to_list(&allocated_head, current);
+
+            return (char*) current + sizeof(heapchunk);
+        }
+
         if (current -> size >= aligned_size + sizeof(heapchunk)) {
             remove_from_list(&free_head, current);
-
-            if (current -> size == aligned_size + sizeof(heapchunk)) {
-                add_to_list(&allocated_head, current);
-
-                return (char*) current + sizeof(heapchunk);
-            }
 
             heapchunk* new_chunk = split_chunk(current, aligned_size + sizeof(heapchunk));
 
@@ -75,6 +76,8 @@ void heap_free(void* ptr) {
 
     remove_from_list(&allocated_head, target);
     add_to_list(&free_head, target);
+
+    coalease_list();
 }
 
 void add_to_list(heapchunk** head, heapchunk* target) {
@@ -113,6 +116,62 @@ heapchunk* split_chunk(heapchunk* target, size_t size) {
     target -> size = size;
 
     return chunk;
+}
+
+void coalease_list() {
+    heapchunk* current = free_head;
+
+    while (current != NULL) {
+        heapchunk* next_node = current -> next;
+
+        heapchunk* prev = find_previous(current);
+        heapchunk* next = find_next(current);
+
+        if (prev != NULL || next != NULL) {
+            remove_from_list(&free_head, current);
+
+            if (prev != NULL) remove_from_list(&free_head, prev);
+            if (next != NULL) remove_from_list(&free_head, next);
+
+            heapchunk* result = prev ? prev : current;
+
+            result -> size = (prev ? prev -> size : 0) + current -> size + (next ? next -> size : 0); 
+
+            add_to_list(&free_head, result);
+        }
+
+        current = next_node;
+    }
+} 
+
+heapchunk* find_next(heapchunk* target) {
+    void* next_addr = (char*) target + target -> size; 
+
+    heapchunk* current = free_head;
+
+    while (current != NULL) {
+        if ((char*) current == next_addr) {
+            return current;
+        } 
+
+        current = current -> next;
+    }
+
+    return NULL;
+} 
+
+heapchunk* find_previous(heapchunk* target) {
+    heapchunk* current = free_head;
+
+    while (current != NULL) {
+        if ((char*) current + current -> size == (char*) target) {
+            return current;
+        }
+
+        current = current -> next;
+    }
+    
+    return NULL;
 }
 
 void heap_cleanup() {
@@ -170,4 +229,3 @@ void print_free_list() {
         ptr = ptr -> next;
     }
 }
-
