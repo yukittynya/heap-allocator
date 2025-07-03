@@ -92,6 +92,28 @@ void remove_from_list(heapchunk** head, heapchunk* target) {
     }
 } 
 
+void heap_cleanup() {
+    heapchunk* current = free_head;
+
+    while (current != NULL) {
+        heapchunk* next = current -> next;
+        munmap(current, current -> size);
+        current = next;
+    }
+
+    free_head = NULL;
+
+    current = allocated_head;
+
+    while (current != NULL) {
+        heapchunk* next = current -> next;
+        munmap(current, current -> size);
+        current = next;
+    }
+
+    allocated_head = NULL;
+} 
+
 void print_chunks() {
     heapchunk* ptr = allocated_head;
     int count = 0;
