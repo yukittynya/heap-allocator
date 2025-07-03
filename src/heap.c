@@ -33,7 +33,19 @@ void* heap_alloc(size_t size) {
     while (current != NULL) {
         if (current -> size >= aligned_size + sizeof(heapchunk)) {
             remove_from_list(&free_head, current);
-            
+
+            if (current -> size == aligned_size + sizeof(heapchunk)) {
+                add_to_list(&allocated_head, current);
+
+                return (char*) current + sizeof(heapchunk);
+            }
+
+            heapchunk* new_chunk = split_chunk(current, aligned_size + sizeof(heapchunk));
+
+            new_chunk -> next = NULL;
+
+            add_to_list(&free_head, new_chunk);
+
             add_to_list(&allocated_head, current);
 
             return (char*) current + sizeof(heapchunk);
@@ -92,6 +104,17 @@ void remove_from_list(heapchunk** head, heapchunk* target) {
     }
 } 
 
+heapchunk* split_chunk(heapchunk* target, size_t size) {
+    heapchunk* chunk;
+
+    chunk = (heapchunk*) ((char*) target + size);
+    chunk -> size = target -> size - size;
+
+    target -> size = size;
+
+    return chunk;
+}
+
 void heap_cleanup() {
     heapchunk* current = free_head;
 
@@ -129,3 +152,22 @@ void print_chunks() {
         ptr = ptr -> next;
     }
 }
+
+void print_free_list() {
+    heapchunk* ptr = free_head;
+    int count = 0;
+
+    printf("\n\n*****Free List*****\n\n");
+
+    while (ptr != NULL) {
+        int value = *(int*) ((char*) ptr + sizeof(heapchunk));
+
+        printf("\nChunk %d\n", count++);
+        printf("    Pointer: %p\n", ptr);
+        printf("    Size: %zu bytes\n", ptr -> size);
+        printf("    Value: %d\n", value);
+
+        ptr = ptr -> next;
+    }
+}
+

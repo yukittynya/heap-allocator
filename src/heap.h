@@ -17,8 +17,11 @@ void heap_free(void* chunk);
 void add_to_list(heapchunk** head, heapchunk* target);
 void remove_from_list(heapchunk** head, heapchunk* target);
 
+heapchunk* split_chunk(heapchunk* target, size_t size);
+
 void heap_cleanup(); 
 
 void print_chunks();
+void print_free_list();
 
 #endif // !HEAP_H #define HEAP_H
