@@ -4,6 +4,6 @@ This is a basic heap allocator that makes use of mmap() to allocate memory with 
 
 Future goals:  
 [x] Actually freeing memory with munmap()  
-[ ] Shrinking chunks  
-[ ] Coalease chunks  
+[x] Shrinking chunks  
+[x] Coalease chunks  
 [ ] Memory optimisations  
